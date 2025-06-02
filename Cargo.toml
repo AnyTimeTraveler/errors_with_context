@@ -1,0 +1,32 @@
+[package]
+name = "errors_with_context"
+version = "1.0.0"
+edition = "2024"
+authors = ["Nora Struck <mail@nora.computer>"]
+license = "MIT"
+description = "Application-ending Errors with context"
+readme = "Readme.md"
+homepage = "https://github.com/AnyTimeTraveler/errors_with_context"
+repository = "https://github.com/AnyTimeTraveler/errors_with_context"
+keywords = ["error", "errors", "context"]
+categories = ["development-tools::debugging"]
+
+[features]
+default = ["pretty_debug_errors"]
+pretty_debug_errors = []
+boolean_errors = []
+
+[dependencies.serde]
+version = "1.0.219"
+optional = true
+default-features = false
+features = ["derive"]
+
+[dev-dependencies]
+serde = { version = "1.0.219", default-features = false, features = ["derive"] }
+serde_json = "1.0.140"
+
+# docs.rs-specific configuration
+[package.metadata.docs.rs]
+# document all features
+all-features = true
