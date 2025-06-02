@@ -119,15 +119,15 @@ ErrorMessage::new("Error description".to_owned());
 // prints "Error description" without listing a cause
 ```
 
-Most of the time, you need a [Result<T, ErrorMessage>] instead.
-[ErrorMessage::err] does exactly that, so you can immediately throw it with `?`:
+Most of the time, you need a [`Result<T, ErrorMessage>`] instead.
+[`ErrorMessage::err`] does exactly that, so you can immediately throw it with `?`:
 ```rust
 fn erroring_function() -> Result<String, ErrorMessage> {
     ErrorMessage::err("Error description".to_owned())?
 }
 ```
 
-If you want to manually wrap an [Error](std::error::Error), there is the function [ErrorMessage::with_context].
+If you want to manually wrap an [Error](std::error::Error), there is the function [`ErrorMessage::with_context`].
 Example:
 ```rust
 ErrorMessage::with_context("Error description".to_owned(), io::Error::last_os_error());
