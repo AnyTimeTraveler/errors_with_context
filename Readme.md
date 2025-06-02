@@ -17,10 +17,6 @@ The output is neatly formatted, almost like a stacktrace.
 
 # A simple example
 ```rust,should_panic
-# use std::fs::File;
-# use std::io;
-# use std::io::ErrorKind;
-# struct Config;
 use errors_with_context::prelude::*;
 // OR just use WithContext
 use errors_with_context::WithContext;
@@ -35,21 +31,18 @@ fn load_config() -> Result<Config, ErrorMessage> {
     read_file(config_path)
         .with_dyn_err_context(|| format!("Failed to read file '{}'", config_path))?;
     // [...]
-# Ok(Config)
 }
 
 fn init_program() -> Result<(), ErrorMessage> {
     load_config()
         .with_err_context("Failed to load configuration")?;
     // [...]
-# Ok(())
 }
 
 fn main() -> Result<(), ErrorMessage> {
     init_program()
         .with_err_context("Failed to start the program")?;
     // [...]
-# Ok(())
 }
 ```
 prints
@@ -71,20 +64,14 @@ You can use the functions [with_err_context](WithContext::with_err_context) and 
 If your error messages are static strings, you can just include them like this:
 
 ```rust
-# use std::io;
 use errors_with_context::WithContext;
 fn produce_err() -> Result<(), io::Error> { Err(io::ErrorKind::UnexpectedEof.into())}
 fn produce_none() -> Option<()> { None }
 
-# let e0 =
 produce_err()
     .with_err_context("Something went wrong in function 'produce_err'");
-# let e1 =
 produce_none()
     .with_err_context("Something went wrong in function 'produce_none'");
-#
-# assert_eq!(e0.unwrap_err().to_string(), "Something went wrong in function 'produce_err'\n  caused by: Kind(UnexpectedEof)");
-# assert_eq!(e1.unwrap_err().to_string(), "Something went wrong in function 'produce_none'");
 ```
 prints
 ```text
@@ -99,23 +86,17 @@ Something went wrong in function 'produce_none'
 ## [with_dyn_err_context](WithContext::with_dyn_err_context)
 
 ```rust
-# use std::io;
 use errors_with_context::prelude::*;
 fn produce_err() -> Result<(), io::Error> { Err(io::ErrorKind::UnexpectedEof.into())}
 fn produce_none() -> Option<()> { None }
 
 let variable = "Test";
 
-# let e0 =
 produce_err()
     .with_dyn_err_context(|| format!("Something went wrong in function 'produce_err'. Extra info: {variable}"));
 
-# let e1 =
 produce_none()
     .with_dyn_err_context(|| format!("Something went wrong in function 'produce_none'. Extra info: {variable}"));
-#
-# assert_eq!(e0.unwrap_err().to_string(), "Something went wrong in function 'produce_err'. Extra info: Test\n  caused by: Kind(UnexpectedEof)");
-# assert_eq!(e1.unwrap_err().to_string(), "Something went wrong in function 'produce_none'. Extra info: Test");
 ```
 prints
 ```text
@@ -141,18 +122,14 @@ ErrorMessage::new("Error description".to_owned());
 Most of the time, you need a [Result<T, ErrorMessage>] instead.
 [ErrorMessage::err] does exactly that, so you can immediately throw it with `?`:
 ```rust
-# use errors_with_context::ErrorMessage;
 fn erroring_function() -> Result<String, ErrorMessage> {
     ErrorMessage::err("Error description".to_owned())?
-// [...]
 }
 ```
 
 If you want to manually wrap an [Error](std::error::Error), there is the function [ErrorMessage::with_context].
 Example:
 ```rust
-# use std::io;
-# use errors_with_context::ErrorMessage;
 ErrorMessage::with_context("Error description".to_owned(), io::Error::last_os_error());
 ```
 
@@ -161,19 +138,9 @@ ErrorMessage::with_context("Error description".to_owned(), io::Error::last_os_er
 # A real-world example
 
 ```rust,should_panic
-# use errors_with_context::{ErrorMessage, WithContext};
-# use std::ffi::OsStr;
-# use std::io::{Read, Error};
-# use std::process::{Command, Stdio};
-# struct Outputs{}
-# fn parse_json(input: &str) -> Result<String, Error> {
-#     unimplemented!()
-# }
 fn main() -> Result<(), ErrorMessage> {
 let outputs = get_outputs()
         .with_err_context("Failed to get outputs")?;
-#   unimplemented!();
-    // [...]
 }
 
 fn get_outputs() -> Result<Outputs, ErrorMessage> {
@@ -183,8 +150,6 @@ let cmd = "swaynsg"; // <-- misspelled "swaymsg" command will cause an error
         .with_dyn_err_context(|| format!("Failed to run command '{cmd}' with args {args:?}"))?;
     let outputs = parse_json(&process_output)
         .with_err_context("Failed to parse swaymsg outputs JSON")?;
-#   unimplemented!()
-    // [...]
 }
 
 fn run<I, S>(cmd: &str, args: I) -> Result<String, ErrorMessage>
@@ -277,33 +242,17 @@ This adds the trait [BooleanErrors] and with it 4 functions to the [bool] type:
 
 This allows for cool code like this:
 ```rust
-# use std::path::Path;
 use errors_with_context::{BooleanErrors, ErrorMessage};
-# fn func() -> Result<(), ErrorMessage> {
 let path = Path::new("test.file");
 path.exists()
     .error_if_false("Expected file to exist!")?;
-#   Ok(())
-# }
-# fn main() {
-#     let  string = func().unwrap_err().to_string();
-#     assert_eq!(string, "Expected file to exist!");
-# }
 ```
 or with more dynamic context:
 ```rust
-# use std::path::Path;
 use errors_with_context::prelude::*;
-# fn func() -> Result<(), ErrorMessage> {
 let path = Path::new("test.file");
 path.exists()
     .error_dyn_if_false(|| format!("Expected file '{}' to exist!", path.display()))?;
-#   Ok(())
-# }
-# fn main() {
-#     let  string = func().unwrap_err().to_string();
-#     assert_eq!(string, "Expected file 'test.file' to exist!");
-# }
 ```
 
 Very useful, when doing lots of checks that aren't immediately errors.
@@ -316,31 +265,13 @@ Very useful, when doing lots of checks that aren't immediately errors.
 
 This feature enables serialization of [ErrorMessage]s with [serde](https://crates.io/crates/serde).
 
-```
-# use std::convert::Infallible;
-# use std::io;
-# use errors_with_context::prelude::*;
-#
+```rust
 let result: Result<Infallible, _> = Err(io::Error::from(io::ErrorKind::NotFound))
 .with_err_context("Failed to read file")
 .with_err_context("Failed to load configuration")
 .with_err_context("Failed to start the program");
 let message = result.unwrap_err();
 let json = serde_json::to_string_pretty(&message).unwrap();
-#
-# assert_eq!(json, r#"{
-#   "message": "Failed to start the program",
-#   "cause": {
-#     "message": "Failed to load configuration",
-#     "cause": {
-#       "message": "Failed to read file",
-#       "cause": {
-#         "message": "entity not found",
-#         "cause": null
-#       }
-#     }
-#   }
-# }"#)
 ```
 results in
 ```json
