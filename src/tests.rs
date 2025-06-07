@@ -8,7 +8,7 @@ use std::path::Path;
 #[test]
 fn test_no_reason() {
     let message_text = "I/O Error";
-    let message = ErrorMessage::new(message_text.to_owned());
+    let message = ErrorMessage::new(message_text);
     let message_string = message.to_string();
 
     println!("test_no_reason():\n{}\n", message_string);
@@ -18,7 +18,7 @@ fn test_no_reason() {
 #[test]
 fn test_result_multiple_reasons() {
     let message_text = "I/O Error";
-    let result: Result<Infallible, _> = ErrorMessage::err(message_text.to_owned())
+    let result: Result<Infallible, _> = ErrorMessage::err(message_text)
         .with_err_context("Failed to read file")
         .with_err_context("Failed to load configuration")
         .with_err_context("Failed to start the program");
@@ -75,7 +75,7 @@ fn test_functions() {
 #[cfg(feature = "serde")]
 fn test_serialize_custom_base_error() {
     let message_text = "I/O Error";
-    let result: Result<Infallible, _> = ErrorMessage::err(message_text.to_owned())
+    let result: Result<Infallible, _> = ErrorMessage::err(message_text)
         .with_err_context("Failed to read file")
         .with_err_context("Failed to load configuration")
         .with_err_context("Failed to start the program");

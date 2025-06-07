@@ -3,6 +3,10 @@
 //! I tried some popular crates and found that they are either too complex or too much work to use.
 //! If the error is application-ending, I just want to pass it up the stack and eventually either print or serialize it.
 //! And that's exactly what this library does, while remaining as small as possible.
+//! 
+//! - 0 required dependencies (1 optional dependency for serialization or errors)
+//! - 0 macros
+//! - many optional features, so you only compile what you need
 //!
 //! It implements a single type [ErrorMessage] and a single trait [WithContext], which is implemented for [Result] and [Option].
 //! It provides two functions:
@@ -148,7 +152,7 @@
 //! To get an [ErrorMessage] without an underlying [Error](std::error::Error)
 //! ```rust
 //! use errors_with_context::ErrorMessage;
-//! ErrorMessage::new("Error description".to_owned());
+//! ErrorMessage::new("Error description");
 //! // prints "Error description" without listing a cause
 //! ```
 //!
@@ -157,7 +161,7 @@
 //! ```rust
 //! # use errors_with_context::ErrorMessage;
 //! fn erroring_function() -> Result<String, ErrorMessage> {
-//!     ErrorMessage::err("Error description".to_owned())?
+//!     ErrorMessage::err("Error description")?
 //! // [...]
 //! }
 //! ```
@@ -167,7 +171,7 @@
 //! ```rust
 //! # use std::io;
 //! # use errors_with_context::ErrorMessage;
-//! ErrorMessage::with_context("Error description".to_owned(), io::Error::last_os_error());
+//! ErrorMessage::with_context("Error description", io::Error::last_os_error());
 //! ```
 //!
 //! <br><br>

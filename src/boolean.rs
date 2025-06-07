@@ -120,15 +120,13 @@ impl BooleanErrors for bool {
         if self {
             Ok(self)
         } else {
-            let message = context.as_ref().to_owned();
-            Err(ErrorMessage::new(message))
+            Err(ErrorMessage::new(context.as_ref()))
         }
     }
 
     fn error_if_true(self, context: impl AsRef<str>) -> Result<bool, ErrorMessage> {
         if self {
-            let message = context.as_ref().to_owned();
-            Err(ErrorMessage::new(message))
+            Err(ErrorMessage::new(context.as_ref()))
         } else {
             Ok(self)
         }
@@ -138,15 +136,13 @@ impl BooleanErrors for bool {
         if self {
             Ok(self)
         } else {
-            let message = context();
-            Err(ErrorMessage::new(message))
+            Err(ErrorMessage::new(context()))
         }
     }
 
     fn error_dyn_if_true(self, context: impl FnOnce() -> String) -> Result<bool, ErrorMessage> {
         if self {
-            let message = context();
-            Err(ErrorMessage::new(message))
+            Err(ErrorMessage::new(context()))
         } else {
             Ok(self)
         }

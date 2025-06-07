@@ -1,6 +1,6 @@
 [package]
 name = "errors_with_context"
-version = "1.0.3"
+version = "1.1.0"
 edition = "2024"
 authors = ["Nora Struck <mail@nora.computer>"]
 license = "MIT"

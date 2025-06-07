@@ -5,7 +5,7 @@ use std::fmt::{Debug, Display, Formatter};
 /// To get an [ErrorMessage] without an underlying [Error](std::error::Error).
 /// ```rust
 /// use errors_with_context::ErrorMessage;
-/// ErrorMessage::new("Error description".to_owned());
+/// ErrorMessage::new("Error description");
 /// // prints "Error description" without listing a cause
 /// ```
 ///
@@ -14,7 +14,7 @@ use std::fmt::{Debug, Display, Formatter};
 /// ```rust
 /// # use errors_with_context::ErrorMessage;
 /// fn erroring_function() -> Result<String, ErrorMessage> {
-///     ErrorMessage::err("Error description".to_owned())?
+///     ErrorMessage::err("Error description")?
 /// // [...]
 /// }
 /// ```
@@ -23,7 +23,7 @@ use std::fmt::{Debug, Display, Formatter};
 /// ```rust
 /// # use std::io;
 /// # use errors_with_context::ErrorMessage;
-/// ErrorMessage::with_context("Error description".to_owned(), io::Error::last_os_error());
+/// ErrorMessage::with_context("Error description", io::Error::last_os_error());
 /// ```
 pub struct ErrorMessage {
     pub(crate) message: String,
@@ -36,11 +36,11 @@ impl ErrorMessage {
     /// Example:
     /// ```rust
     /// use errors_with_context::ErrorMessage;
-    /// ErrorMessage::new("Error description".to_owned());
+    /// ErrorMessage::new("Error description");
     /// // prints "Error description" without listing a cause
     /// ```
-    pub fn new(message: String) -> ErrorMessage {
-        ErrorMessage { message, cause: None }
+    pub fn new(message: impl ToString) -> ErrorMessage {
+        ErrorMessage { message: message.to_string(), cause: None }
     }
     /// This function creates a [Result<T, ErrorMessage>], so you can immediately throw it with `?`.
     /// 
@@ -48,12 +48,12 @@ impl ErrorMessage {
     /// ```rust
     /// # use errors_with_context::ErrorMessage;
     /// fn erroring_function() -> Result<String, ErrorMessage> {
-    ///     ErrorMessage::err("Error description".to_owned())?
+    ///     ErrorMessage::err("Error description")?
     /// // [...]
     /// }
     /// ```
-    pub fn err<T>(message: String) -> Result<T, ErrorMessage> {
-        Err(ErrorMessage { message, cause: None })
+    pub fn err<T>(message: impl ToString) -> Result<T, ErrorMessage> {
+        Err(ErrorMessage { message: message.to_string(), cause: None })
     }
     /// This function allows one to manually wrap an [Error](std::error::Error).
     /// 
@@ -61,10 +61,10 @@ impl ErrorMessage {
     /// ```rust
     /// # use std::io;
     /// # use errors_with_context::ErrorMessage;
-    /// ErrorMessage::with_context("Error description".to_owned(), io::Error::last_os_error());
+    /// ErrorMessage::with_context("Error description", io::Error::last_os_error());
     /// ```
-    pub fn with_context<E: Error + 'static>(message: String, cause: E) -> ErrorMessage {
-        ErrorMessage { message, cause: Some(Box::new(cause)) }
+    pub fn with_context<E: Error + 'static>(message: impl ToString, cause: E) -> ErrorMessage {
+        ErrorMessage { message: message.to_string(), cause: Some(Box::new(cause)) }
     }
 }
 

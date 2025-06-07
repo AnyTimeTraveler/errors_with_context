@@ -7,8 +7,7 @@ impl<T, E: Error + 'static> WithContext<T, E> for Result<T, E> {
         match self {
             Ok(value) => Ok(value),
             Err(error) => {
-                let message = context.as_ref().to_owned();
-                Err(ErrorMessage::with_context(message, error))
+                Err(ErrorMessage::with_context(context.as_ref(), error))
             }
         }
     }
@@ -17,8 +16,7 @@ impl<T, E: Error + 'static> WithContext<T, E> for Result<T, E> {
         match self {
             Ok(value) => Ok(value),
             Err(error) => {
-                let message = context();
-                Err(ErrorMessage::with_context(message, error))
+                Err(ErrorMessage::with_context(context(), error))
             }
         }
     }

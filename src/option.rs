@@ -7,8 +7,7 @@ impl<T> WithContext<T, Infallible> for Option<T> {
         match self {
             Some(value) => Ok(value),
             None => {
-                let message = context.as_ref().to_owned();
-                ErrorMessage::err(message)
+                ErrorMessage::err(context.as_ref())
             }
         }
     }
@@ -16,8 +15,7 @@ impl<T> WithContext<T, Infallible> for Option<T> {
         match self {
             Some(value) => Ok(value),
             None => {
-                let message = context();
-                ErrorMessage::err(message)
+                ErrorMessage::err(context())
             }
         }
     }
