@@ -24,3 +24,8 @@ Date: 07.06.2025
 Previously `ErrorMessage::new` required a `String`.  
 Now, it only requires something that has the `ToString` trait.  
 Same for `ErrorMessage::err` and `ErrorMessage::with_context`
+
+# 1.2.0: Add optional feature called "send", which makes `ErrorMessage` `Send` and also requires all underlying errors to be `Send`
+Date: 22.06.2025
+
+If enabled, it allows `ErrorMessage`s to be used with (for example) `tokio::spawn`, which requires errors to be `Send`.

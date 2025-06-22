@@ -328,6 +328,35 @@
 //!
 //! <br>
 //!
+//!
+//! ## Feature: `send`
+//!
+//! (disabled by default)
+//!
+//! This adds the requirements for all causes to be [Send].
+//! This is useful for sending errors between threads.
+//!
+//! Example:
+//! ```rust
+//! # mod tokio {
+//! #     use std::thread::JoinHandle;
+//! #     use errors_with_context::ErrorMessage;
+//! #     pub async fn spawn(future: impl Future) -> Result<Result<bool, ErrorMessage>, ErrorMessage> {
+//! #         ErrorMessage::err("mocked function")
+//! #     }
+//! # }
+//! # async fn ping(){}
+//! # use errors_with_context::{ErrorMessage, WithContext};
+//! # async fn func() -> Result<(), ErrorMessage>{
+//!  let host_reachable = tokio::spawn(ping()).await
+//!     .with_err_context("Failed to ping host")??;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! <br>
+//!
+//!
 //! ## Feature: `serde`
 //!
 //! (disabled by default)
@@ -431,7 +460,7 @@ pub trait WithContext<T, E> {
     /// Something went wrong in function 'produce_err'
     ///  caused by: Kind(UnexpectedEof)
     /// ```
-    fn with_err_context(self, reason: impl AsRef<str>) -> Result<T, ErrorMessage>;
+    fn with_err_context(self, reason: impl ToString) -> Result<T, ErrorMessage>;
 
     /// Convert an [`Option<T>`] or [`Result<T,_>`] into [`Result<T, ErrorMessage>`]
     ///

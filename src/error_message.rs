@@ -27,6 +27,9 @@ use std::fmt::{Debug, Display, Formatter};
 /// ```
 pub struct ErrorMessage {
     pub(crate) message: String,
+    #[cfg(feature = "send")]
+    pub(crate) cause: Option<Box<dyn Error + Send>>,
+    #[cfg(not(feature = "send"))]
     pub(crate) cause: Option<Box<dyn Error>>,
 }
 
@@ -63,7 +66,21 @@ impl ErrorMessage {
     /// # use errors_with_context::ErrorMessage;
     /// ErrorMessage::with_context("Error description", io::Error::last_os_error());
     /// ```
+    #[cfg(not(feature = "send"))]
     pub fn with_context<E: Error + 'static>(message: impl ToString, cause: E) -> ErrorMessage {
+        ErrorMessage { message: message.to_string(), cause: Some(Box::new(cause)) }
+    }
+
+    /// This function allows one to manually wrap an [Error](std::error::Error).
+    ///
+    /// Example:
+    /// ```rust
+    /// # use std::io;
+    /// # use errors_with_context::ErrorMessage;
+    /// ErrorMessage::with_context("Error description", io::Error::last_os_error());
+    /// ```
+    #[cfg(feature = "send")]
+    pub fn with_context<E: Error + Send + 'static>(message: impl ToString, cause: E) -> ErrorMessage {
         ErrorMessage { message: message.to_string(), cause: Some(Box::new(cause)) }
     }
 }
@@ -108,6 +125,22 @@ impl Debug for ErrorMessage {
 }
 
 #[allow(clippy::borrowed_box)]
+#[cfg(feature = "send")]
+fn fmt_cause(error: &Box<dyn Error + Send>, f: &mut Formatter) -> fmt::Result {
+    f.write_str("\n  caused by: ")?;
+    if let Some(cause) = error.downcast_ref::<ErrorMessage>() {
+        f.write_str(&cause.message)?;
+        if let Some(cause) = &cause.cause {
+            fmt_cause(cause, f)?;
+        }
+    } else {
+        Debug::fmt(error, f)?;
+    }
+    Ok(())
+}
+
+#[allow(clippy::borrowed_box)]
+#[cfg(not(feature = "send"))]
 fn fmt_cause(error: &Box<dyn Error>, f: &mut Formatter) -> fmt::Result {
     f.write_str("\n  caused by: ")?;
     if let Some(cause) = error.downcast_ref::<ErrorMessage>() {

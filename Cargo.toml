@@ -1,6 +1,6 @@
 [package]
 name = "errors_with_context"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2024"
 authors = ["Nora Struck <mail@nora.computer>"]
 license = "MIT"
@@ -15,6 +15,7 @@ categories = ["development-tools::debugging"]
 default = ["pretty_debug_errors"]
 pretty_debug_errors = []
 boolean_errors = []
+send = []
 
 [dependencies.serde]
 version = "1.0.219"
